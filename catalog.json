@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "id": "milliy",
+      "name": "Milliy fasonlar",
+      "cover": "https://picsum.photos/seed/milliy-cover/400/400",
+      "items": [
+        { "id": "m1", "name": "Anʼanaviy adras koʻylak", "price": "620 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/milliy-1/450/600", "note": "Adras matosi va milliy naqshlar bilan qo'lda tikilgan." },
+        { "id": "m2", "name": "Milliy chorsu koʻylak", "price": "540 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/milliy-2/450/600", "note": "Yengil va bezakli, kundalik milliy libos sifatida ham kiyish mumkin." },
+        { "id": "m3", "name": "Zargarlik bezakli milliy libos", "price": "980 000 soʻm", "oldPrice": "1 200 000 soʻm", "discount": 18, "photo": "https://picsum.photos/seed/milliy-3/450/600", "note": "Ko'kraklariga zardo'zi bezak qo'shilgan, to'y-tantanalar uchun mos." }
+      ]
+    },
+    {
+      "id": "rus",
+      "name": "Rus fasonlari",
+      "cover": "https://picsum.photos/seed/rus-cover/400/400",
+      "items": [
+        { "id": "r1", "name": "Rus uslubidagi koʻylak", "price": "710 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/rus-1/450/600", "note": "Yumshoq siluet va klassik yoqa fasoni bilan." },
+        { "id": "r2", "name": "Klassik rus sarafan", "price": "560 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/rus-2/450/600", "note": "Erkin, qulay fason — kundalik kiyish uchun ideal." },
+        { "id": "r3", "name": "Rus uslubi kechki libos", "price": "1 100 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/rus-3/450/600", "note": "Uzun yenglar va nafis chiziqlar bilan kechki tadbirlarga mos." }
+      ]
+    },
+    {
+      "id": "kelinchak",
+      "name": "Kelinchak fasonlari",
+      "cover": "https://picsum.photos/seed/kelin-cover/400/400",
+      "items": [
+        { "id": "k1", "name": "Klassik kelinchak libosi", "price": "2 800 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/kelin-1/450/600", "note": "Har bir tafsilot qo'lda ishlanadi, o'lchamga alohida moslashtiriladi." },
+        { "id": "k2", "name": "Zamonaviy kelinchak libosi", "price": "2 450 000 soʻm", "oldPrice": "2 900 000 soʻm", "discount": 16, "photo": "https://picsum.photos/seed/kelin-2/450/600", "note": "Sodda va nafis, ochiq yelka fasoni bilan." },
+        { "id": "k3", "name": "Uzun shleyfli kelin libosi", "price": "3 400 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/kelin-3/450/600", "note": "Shohona uzun shleyf va dantel bezaklar bilan." }
+      ]
+    },
+    {
+      "id": "zamonaviy",
+      "name": "Zamonaviy fasonlar",
+      "cover": "https://picsum.photos/seed/zamon-cover/400/400",
+      "items": [
+        { "id": "z1", "name": "Minimalist zamonaviy koʻylak", "price": "480 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/zamon-1/450/600", "note": "Toza chiziqlar, hech qanday ortiqcha bezaksiz." },
+        { "id": "z2", "name": "Oversize koʻylak", "price": "410 000 soʻm", "oldPrice": "", "discount": 0, "photo": "https://picsum.photos/seed/zamon-2/450/600", "note": "Erkin fason, yoshlar orasida mashhur." },
+        { "id": "z3", "name": "Zamonaviy midi koʻylak", "price": "530 000 soʻm", "oldPrice": "620 000 soʻm", "discount": 15, "photo": "https://picsum.photos/seed/zamon-3/450/600", "note": "O'rta uzunlikdagi yubka, ish va kundalik kiyim sifatida mos." }
+      ]
+    }
+  ]
+}

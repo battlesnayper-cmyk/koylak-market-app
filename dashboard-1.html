@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelye — Boshqaruv paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F5F9; --surface:#FFFFFF; --ink:#171521; --muted:#75717F;
+    --accent:#6C2BD9; --accent-soft:#EFE6FF; --sale:#FF4D67; --line:#ECEAF2;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;}
+  header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 20px;background:var(--surface);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:5;
+  }
+  header h1{font-size:18px;font-weight:800;margin:0;}
+  .logout-btn{
+    border:1px solid var(--line);background:none;border-radius:10px;
+    padding:8px 14px;font-family:'Manrope',sans-serif;font-size:13.5px;
+    color:var(--muted);cursor:pointer;
+  }
+  .tabs{display:flex;gap:8px;padding:14px 20px 0;max-width:680px;margin:0 auto;}
+  .tab-btn{
+    border:none;background:var(--surface);border-radius:12px;
+    padding:10px 16px;font-family:'Manrope',sans-serif;font-size:14.5px;font-weight:600;
+    color:var(--muted);cursor:pointer;
+  }
+  .tab-btn.active{background:var(--accent);color:#fff;}
+  main{max-width:680px;margin:0 auto;padding:18px 20px 60px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  button{font-family:'Manrope',sans-serif;cursor:pointer;}
+  .btn{
+    border:none;background:var(--accent);color:#fff;border-radius:10px;
+    padding:10px 16px;font-size:14px;font-weight:700;
+  }
+  .btn.ghost{background:var(--surface);color:var(--accent);border:1px solid var(--accent-soft);}
+  .btn.danger{background:none;color:var(--sale);}
+
+  /* ---- mijozlar ---- */
+  #broadcastBar{display:flex;gap:8px;margin-bottom:18px;}
+  #broadcastBar textarea{
+    flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-family:'Manrope',sans-serif;font-size:14.5px;resize:none;height:44px;background:var(--surface);
+  }
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;}
+  .toolbar input{
+    flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-family:'Manrope',sans-serif;font-size:14.5px;background:var(--surface);
+  }
+  .user-card{
+    background:var(--surface);border-radius:14px;padding:14px 16px;margin-bottom:10px;
+  }
+  .user-top{display:flex;justify-content:space-between;align-items:baseline;}
+  .user-name{font-weight:700;font-size:15px;}
+  .user-time{font-size:12px;color:var(--muted);}
+  .user-msg{margin:6px 0 10px;font-size:14.5px;color:#3E332A;font-style:italic;}
+
+  /* ---- katalog ---- */
+  .cat-block{background:var(--surface);border-radius:16px;padding:16px;margin-bottom:16px;}
+  .cat-block-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .cat-block-top h3{font-size:16px;margin:0;}
+  .cat-actions{display:flex;gap:6px;}
+  .item-row{
+    display:flex;gap:10px;align-items:center;
+    border-top:1px solid var(--line);padding:10px 0;
+  }
+  .item-row img{width:46px;height:58px;object-fit:cover;border-radius:8px;}
+  .item-row .info{flex:1;}
+  .item-row .name{font-size:14px;font-weight:600;}
+  .item-row .price{font-size:13px;color:var(--accent);}
+  .item-row .actions{display:flex;gap:6px;}
+  .icon-sm{
+    border:none;background:var(--bg);border-radius:8px;
+    width:30px;height:30px;font-size:14px;
+  }
+  .empty{color:var(--muted);font-style:italic;font-size:14px;text-align:center;padding:20px 0;}
+
+  /* ---- modal ---- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,13,20,.5);
+    display:none;align-items:center;justify-content:center;z-index:20;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border-radius:16px;padding:22px;width:100%;max-width:380px;max-height:86vh;overflow-y:auto;}
+  .modal h3{margin:0 0 14px;font-size:17px;}
+  .modal label{font-size:12.5px;color:var(--muted);display:block;margin:10px 0 4px;}
+  .modal input, .modal textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-family:'Manrope',sans-serif;font-size:14px;background:var(--bg);
+  }
+  .modal textarea{height:70px;resize:none;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13.5px;color:var(--muted);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .file-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 16px;border-radius:10px;
+    background:var(--accent-soft);color:var(--accent);
+    font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;
+    cursor:pointer;border:1px solid transparent;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .file-btn:active{background:#E3D4FF;transform:scale(.97);}
+  .file-input-hidden{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .file-name{font-size:12.5px;color:var(--muted);margin-left:8px;vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Atelye — boshqaruv paneli</h1>
+  <button class="logout-btn" onclick="logout()">Chiqish</button>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="users">Mijozlar</button>
+  <button class="tab-btn" data-tab="catalog">Katalog</button>
+  <button class="tab-btn" data-tab="settings">Sozlamalar</button>
+</div>
+
+<main>
+  <!-- MIJOZLAR -->
+  <section class="panel active" id="panel-users">
+    <div id="broadcastBar" style="flex-wrap:wrap;">
+      <textarea id="broadcastText" placeholder="Barchaga xabar yuborish..."></textarea>
+      <button class="btn" onclick="broadcast()">Yuborish</button>
+      <div style="flex-basis:100%;display:flex;align-items:center;gap:8px;">
+        <button type="button" class="file-btn" style="padding:7px 12px;font-size:12.5px;" onclick="document.getElementById('broadcastPhoto').click()">📷 Rasm</button>
+        <input id="broadcastPhoto" type="file" accept="image/*" class="file-input-hidden">
+        <span class="file-name" id="broadcastPhotoName"></span>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input id="search" placeholder="Ism yoki username qidirish..." oninput="renderUsers()">
+      <button class="btn ghost" onclick="loadUsers()">Yangilash</button>
+    </div>
+    <div id="userList"></div>
+  </section>
+
+  <!-- KATALOG -->
+  <section class="panel" id="panel-catalog">
+    <button class="btn" style="margin-bottom:16px;" onclick="openCategoryModal()">+ Kategoriya qoʻshish</button>
+    <div id="catalogList"></div>
+  </section>
+
+  <!-- SOZLAMALAR -->
+  <section class="panel" id="panel-settings">
+    <div class="cat-block">
+      <h3 style="margin:0 0 6px;">Telegram bot</h3>
+      <p id="botStatusText" style="color:var(--muted);font-size:14px;margin:0 0 16px;">Tekshirilmoqda...</p>
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:6px;">Bot token (@BotFather'dan olinadi)</label>
+      <input id="botTokenInput" placeholder="123456:ABC-DEF..." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:12px;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="activateBot()">Faollashtirish</button>
+        <button class="btn ghost" onclick="deactivateBot()">Faolsizlantirish</button>
+      </div>
+    </div>
+
+    <div class="cat-block">
+      <h3 style="margin:0 0 6px;">Telegram orqali javob berish</h3>
+      <p style="color:var(--muted);font-size:13.5px;margin:0 0 14px;">
+        Bu yoqilgan bo'lsa, mijoz botga yozganda xabar sizning shaxsiy Telegram chatingizga forward qilinadi.
+        O'sha xabarga oddiy "Reply" qilib javob yozsangiz — bot uni avtomatik mijozga yetkazadi. Dashboard ochish shart emas.
+      </p>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 10px;">
+        Chat ID'ingizni bilmasangiz: botga <b>/myid</b> deb yozing, bot sizga chat ID'ni qaytaradi.
+      </p>
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:6px;">Sizning shaxsiy Telegram chat ID'ingiz</label>
+      <input id="adminChatIdInput" placeholder="Masalan: 123456789" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:12px;">
+      <button class="btn" onclick="saveAdminChatId()">Saqlash</button>
+    </div>
+
+    <div class="cat-block">
+      <h3 style="margin:0 0 12px;">Mijozlar bilan bog'lanish (Telegram username)</h3>
+      <p style="color:var(--muted);font-size:13.5px;margin:0 0 14px;">
+        Mini appdagi "Yozish" va "Bog'lanish" tugmalari shu username orqali sizga chat ochadi.
+      </p>
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:6px;">Telegram username (@ belgisisiz)</label>
+      <input id="contactUsernameInput" placeholder="Masalan: asadbek_tikuvchi" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:12px;">
+      <button class="btn" onclick="saveContactUsername()">Saqlash</button>
+    </div>
+
+    <div class="cat-block">
+      <h3 style="margin:0 0 12px;">Mini app nomi</h3>
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:6px;">Ilova nomi (yuqorida ko'rinadi)</label>
+      <input id="appNameInput" placeholder="Masalan: Atelye Market" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:12px;">
+      <button class="btn" onclick="saveAppName()">Saqlash</button>
+    </div>
+
+    <div class="cat-block">
+      <h3 style="margin:0 0 12px;">Mini app reklama banneri</h3>
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:4px;">Kichik sarlavha</label>
+      <input id="promoEyebrow" placeholder="Masalan: Fasl chegirmasi" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:10px;">
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:4px;">Katta matn (foiz)</label>
+      <input id="promoTitle" placeholder="Masalan: -20% gacha" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:10px;">
+      <label style="font-size:12.5px;color:var(--muted);display:block;margin-bottom:4px;">Izoh matni</label>
+      <input id="promoText" placeholder="Masalan: Kelinchak va kechki libos toʻplamida" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:'Manrope',sans-serif;font-size:14px;margin-bottom:12px;">
+      <button class="btn" onclick="savePromo()">Saqlash</button>
+    </div>
+  </section>
+</main>
+
+<!-- KATEGORIYA MODAL -->
+<div class="modal-overlay" id="catModalOverlay">
+  <div class="modal">
+    <h3 id="catModalTitle">Kategoriya qoʻshish</h3>
+    <label>Nomi</label>
+    <input id="catName" placeholder="Masalan: Milliy fasonlar">
+    <label>Muqova rasm manzili (URL) — ixtiyoriy</label>
+    <input id="catCover" placeholder="https://...">
+    <label>Yoki telefon galereyasidan rasm tanlang</label>
+    <button type="button" class="file-btn" onclick="document.getElementById('catCoverFile').click()">📷 Rasm tanlash</button>
+    <input id="catCoverFile" type="file" accept="image/*" class="file-input-hidden">
+    <span class="file-name" id="catCoverFileName"></span>
+    <div id="catCoverPreviewWrap" style="margin-top:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeCategoryModal()">Bekor qilish</button>
+      <button class="btn" onclick="saveCategory()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- FASON MODAL -->
+<div class="modal-overlay" id="itemModalOverlay">
+  <div class="modal">
+    <h3 id="itemModalTitle">Fason qoʻshish</h3>
+    <label>Nomi</label>
+    <input id="itemName" placeholder="Masalan: Klassik uzun koʻylak">
+    <label>Narx</label>
+    <input id="itemPrice" placeholder="Masalan: 850 000 soʻm">
+    <label>Eski narx (agar chegirma boʻlsa)</label>
+    <input id="itemOldPrice" placeholder="Masalan: 1 000 000 soʻm">
+    <label>Chegirma foizi</label>
+    <input id="itemDiscount" type="number" placeholder="Masalan: 20">
+    <label>Rasm manzillari (URL, bir nechta bo'lsa vergul bilan ajrating)</label>
+    <input id="itemPhotoUrl" placeholder="https://..., https://...">
+    <label>Yoki galereyadan bir nechta rasm tanlash (2-3 ta)</label>
+    <button type="button" class="file-btn" onclick="document.getElementById('itemPhotoFile').click()">📷 Rasm(lar) tanlash</button>
+    <input id="itemPhotoFile" type="file" accept="image/*" multiple class="file-input-hidden">
+    <span class="file-name" id="itemPhotoFileName"></span>
+    <div id="itemPhotoPreviewWrap" style="display:flex;gap:6px;margin-top:8px;"></div>
+    <label>Izoh (tikuvchidan)</label>
+    <textarea id="itemNote" placeholder="Bu fason haqida shaxsiy izohingiz..."></textarea>
+    <div class="checkbox-row">
+      <input type="checkbox" id="itemNotify" style="width:auto;">
+      <label for="itemNotify" style="margin:0;">Obunachilarga "Yangi model qoʻshildi" xabarini yuborish</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeItemModal()">Bekor qilish</button>
+      <button class="btn" onclick="saveItem()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- XABAR YUBORISH MODAL -->
+<div class="modal-overlay" id="sendModalOverlay">
+  <div class="modal">
+    <h3>Xabar yuborish</h3>
+    <label>Xabar matni</label>
+    <textarea id="sendText" placeholder="Xabaringiz..."></textarea>
+    <label>Rasm (ixtiyoriy) — telefon galereyasidan tanlang</label>
+    <button type="button" class="file-btn" onclick="document.getElementById('sendPhoto').click()">📷 Rasm tanlash</button>
+    <input id="sendPhoto" type="file" accept="image/*" class="file-input-hidden">
+    <span class="file-name" id="sendPhotoName"></span>
+    <div id="sendPhotoPreview" style="margin-top:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeSendModal()">Bekor qilish</button>
+      <button class="btn" onclick="submitSend()">Yuborish</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ====== KIRISHNI TEKSHIRISH ======
+  (async function checkAuth(){
+    const res = await fetch('/auth/me');
+    const data = await res.json();
+    if (!data.loggedIn) window.location.href = '/login.html';
+  })();
+
+  function logout(){
+    fetch('/auth/logout', { method: 'POST' }).then(() => window.location.href = '/login.html');
+  }
+
+  // ====== TABLAR ======
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'catalog') loadCatalog();
+      if (btn.dataset.tab === 'settings') { loadBotStatus(); loadAdminChatId(); loadPromo(); loadContactUsername(); loadAppName(); }
+    });
+  });
+
+  // ====== MIJOZLAR ======
+  let USERS = [];
+  let activeSendChatId = null;
+  async function loadUsers(){
+    const res = await fetch('/api/users');
+    if (res.status === 401) return window.location.href = '/login.html';
+    USERS = await res.json();
+    renderUsers();
+  }
+  function renderUsers(){
+    const q = document.getElementById('search').value.toLowerCase();
+    const list = document.getElementById('userList');
+    const filtered = USERS.filter(u => (u.first_name+' '+u.last_name+' '+u.username).toLowerCase().includes(q));
+    if (filtered.length === 0) { list.innerHTML = '<p class="empty">Hozircha hech kim yozmagan</p>'; return; }
+    list.innerHTML = filtered.map(u => `
+      <div class="user-card">
+        <div class="user-top">
+          <span class="user-name">${u.first_name} ${u.last_name||''}${u.username ? ' · @'+u.username : ''}</span>
+          <span class="user-time">${new Date(u.last_time).toLocaleString('uz-UZ')}</span>
+        </div>
+        <p class="user-msg">"${u.last_message}"</p>
+        <button class="btn ghost" onclick="openSendModal(${u.chat_id})">Xabar yuborish</button>
+      </div>
+    `).join('');
+  }
+  function openSendModal(chatId){
+    activeSendChatId = chatId;
+    document.getElementById('sendText').value = '';
+    document.getElementById('sendPhoto').value = '';
+    document.getElementById('sendPhotoName').textContent = '';
+    document.getElementById('sendPhotoPreview').innerHTML = '';
+    document.getElementById('sendModalOverlay').classList.add('open');
+  }
+  function closeSendModal(){ document.getElementById('sendModalOverlay').classList.remove('open'); }
+  document.getElementById('sendPhoto').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    document.getElementById('sendPhotoName').textContent = file ? file.name : '';
+    const wrap = document.getElementById('sendPhotoPreview');
+    if (!file) { wrap.innerHTML = ''; return; }
+    const reader = new FileReader();
+    reader.onload = () => wrap.innerHTML = `<img src="${reader.result}" style="width:80px;height:100px;object-fit:cover;border-radius:10px;">`;
+    reader.readAsDataURL(file);
+  });
+  async function submitSend(){
+    const text = document.getElementById('sendText').value.trim();
+    const file = document.getElementById('sendPhoto').files[0];
+    if (!text && !file) return alert('Xabar matni yoki rasm kiriting');
+    const fd = new FormData();
+    fd.append('chat_id', activeSendChatId);
+    fd.append('text', text);
+    if (file) fd.append('photo', file);
+    const res = await fetch('/api/send', { method:'POST', body: fd });
+    if (res.ok) { closeSendModal(); alert('✔ Yuborildi'); }
+    else { const d = await res.json(); alert(d.error || 'Xatolik'); }
+  }
+  async function broadcast(){
+    const text = document.getElementById('broadcastText').value.trim();
+    const file = document.getElementById('broadcastPhoto').files[0];
+    if (!text && !file) return alert('Xabar matni yoki rasm kiriting');
+    if (!confirm('Xabar barcha (' + USERS.length + ') foydalanuvchiga yuboriladi. Davom etamizmi?')) return;
+    const fd = new FormData();
+    fd.append('text', text);
+    if (file) fd.append('photo', file);
+    const res = await fetch('/api/broadcast', { method:'POST', body: fd });
+    const data = await res.json();
+    alert(data.sent + ' / ' + data.total + ' kishiga yuborildi');
+    document.getElementById('broadcastText').value = '';
+    document.getElementById('broadcastPhoto').value = '';
+    document.getElementById('broadcastPhotoName').textContent = '';
+  }
+  document.getElementById('broadcastPhoto').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    document.getElementById('broadcastPhotoName').textContent = file ? file.name : '';
+  });
+
+  // ====== KATALOG ======
+  let CATALOG = { categories: [] };
+  let editingCatId = null;
+  let activeCatIdForItem = null;
+  let editingItemId = null;
+
+  async function loadCatalog(){
+    const res = await fetch('/api/catalog');
+    CATALOG = await res.json();
+    renderCatalog();
+  }
+  function renderCatalog(){
+    const el = document.getElementById('catalogList');
+    if (CATALOG.categories.length === 0) { el.innerHTML = '<p class="empty">Hali kategoriya yoʻq</p>'; return; }
+    el.innerHTML = CATALOG.categories.map(cat => `
+      <div class="cat-block">
+        <div class="cat-block-top">
+          <h3>${cat.name} <span style="color:var(--muted);font-weight:400;font-size:13px;">(${cat.items.length})</span></h3>
+          <div class="cat-actions">
+            <button class="icon-sm" onclick="openCategoryModal('${cat.id}')">✎</button>
+            <button class="icon-sm" onclick="deleteCategory('${cat.id}')">🗑</button>
+          </div>
+        </div>
+        ${cat.items.map(it => `
+          <div class="item-row">
+            <img src="${it.photo}" alt="">
+            <div class="info">
+              <div class="name">${it.name}</div>
+              <div class="price">${it.discount ? '-'+it.discount+'% · ' : ''}${it.price}</div>
+            </div>
+            <div class="actions">
+              <button class="icon-sm" onclick="openItemModal('${cat.id}','${it.id}')">✎</button>
+              <button class="icon-sm" onclick="deleteItem('${cat.id}','${it.id}')">🗑</button>
+            </div>
+          </div>
+        `).join('')}
+        <button class="btn ghost" style="margin-top:12px;" onclick="openItemModal('${cat.id}')">+ Fason qoʻshish</button>
+      </div>
+    `).join('');
+  }
+
+  // -- kategoriya modal --
+  function openCategoryModal(id){
+    editingCatId = id || null;
+    const cat = id ? CATALOG.categories.find(c => c.id === id) : null;
+    document.getElementById('catModalTitle').textContent = id ? 'Kategoriyani tahrirlash' : 'Kategoriya qoʻshish';
+    document.getElementById('catName').value = cat ? cat.name : '';
+    document.getElementById('catCover').value = cat ? cat.cover : '';
+    document.getElementById('catCoverFile').value = '';
+    document.getElementById('catCoverFileName').textContent = '';
+    document.getElementById('catCoverPreviewWrap').innerHTML = cat ? `<img src="${cat.cover}" style="width:70px;height:70px;object-fit:cover;border-radius:10px;">` : '';
+    document.getElementById('catModalOverlay').classList.add('open');
+  }
+  document.getElementById('catCoverFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const wrap = document.getElementById('catCoverPreviewWrap');
+    document.getElementById('catCoverFileName').textContent = file ? file.name : '';
+    if (!file){ wrap.innerHTML = ''; return; }
+    const reader = new FileReader();
+    reader.onload = () => wrap.innerHTML = `<img src="${reader.result}" style="width:70px;height:70px;object-fit:cover;border-radius:10px;">`;
+    reader.readAsDataURL(file);
+  });
+  function closeCategoryModal(){ document.getElementById('catModalOverlay').classList.remove('open'); }
+  async function saveCategory(){
+    const name = document.getElementById('catName').value.trim();
+    if (!name) return;
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('coverUrl', document.getElementById('catCover').value.trim());
+    const file = document.getElementById('catCoverFile').files[0];
+    if (file) fd.append('cover', file);
+
+    if (editingCatId){
+      await fetch('/api/categories/'+editingCatId, { method:'PUT', body: fd });
+    } else {
+      await fetch('/api/categories', { method:'POST', body: fd });
+    }
+    closeCategoryModal();
+    loadCatalog();
+  }
+  async function deleteCategory(id){
+    if (!confirm('Bu kategoriya va ichidagi barcha fasonlar oʻchiriladi. Davom etamizmi?')) return;
+    await fetch('/api/categories/'+id, { method:'DELETE' });
+    loadCatalog();
+  }
+
+  // -- fason modal --
+  function openItemModal(catId, itemId){
+    activeCatIdForItem = catId;
+    editingItemId = itemId || null;
+    const cat = CATALOG.categories.find(c => c.id === catId);
+    const item = itemId ? cat.items.find(i => i.id === itemId) : null;
+    document.getElementById('itemModalTitle').textContent = itemId ? 'Fasonni tahrirlash' : 'Fason qoʻshish';
+    document.getElementById('itemName').value = item ? item.name : '';
+    document.getElementById('itemPrice').value = item ? item.price : '';
+    document.getElementById('itemOldPrice').value = item ? item.oldPrice : '';
+    document.getElementById('itemDiscount').value = item ? item.discount : '';
+    document.getElementById('itemPhotoUrl').value = item && item.photos ? item.photos.join(', ') : (item ? item.photo : '');
+    document.getElementById('itemPhotoFile').value = '';
+    document.getElementById('itemPhotoFileName').textContent = '';
+    const previewWrap = document.getElementById('itemPhotoPreviewWrap');
+    const existingPhotos = item ? (item.photos && item.photos.length ? item.photos : [item.photo]) : [];
+    previewWrap.innerHTML = existingPhotos.filter(Boolean).map(src =>
+      `<img src="${src}" style="width:50px;height:64px;object-fit:cover;border-radius:8px;">`
+    ).join('');
+    document.getElementById('itemNote').value = item ? item.note : '';
+    document.getElementById('itemNotify').checked = false;
+    document.getElementById('itemModalOverlay').classList.add('open');
+  }
+  document.getElementById('itemPhotoFile').addEventListener('change', (e) => {
+    const files = [...e.target.files].slice(0, 3);
+    document.getElementById('itemPhotoFileName').textContent = files.length
+      ? (files.length === 1 ? files[0].name : files.length + ' ta fayl tanlandi')
+      : '';
+    const wrap = document.getElementById('itemPhotoPreviewWrap');
+    wrap.innerHTML = '';
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        wrap.innerHTML += `<img src="${reader.result}" style="width:50px;height:64px;object-fit:cover;border-radius:8px;">`;
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+  function closeItemModal(){ document.getElementById('itemModalOverlay').classList.remove('open'); }
+  async function saveItem(){
+    const fd = new FormData();
+    fd.append('name', document.getElementById('itemName').value.trim());
+    fd.append('price', document.getElementById('itemPrice').value.trim());
+    fd.append('oldPrice', document.getElementById('itemOldPrice').value.trim());
+    fd.append('discount', document.getElementById('itemDiscount').value || '0');
+    fd.append('note', document.getElementById('itemNote').value.trim());
+    fd.append('photoUrl', document.getElementById('itemPhotoUrl').value.trim());
+    fd.append('notify', document.getElementById('itemNotify').checked ? 'true' : 'false');
+    const files = [...document.getElementById('itemPhotoFile').files].slice(0, 3);
+    files.forEach(file => fd.append('photos', file));
+
+    let res;
+    if (editingItemId){
+      res = await fetch('/api/items/'+activeCatIdForItem+'/'+editingItemId, { method:'PUT', body: fd });
+    } else {
+      res = await fetch('/api/categories/'+activeCatIdForItem+'/items', { method:'POST', body: fd });
+    }
+    if (!res.ok){
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Saqlashda xatolik yuz berdi');
+      return;
+    }
+    closeItemModal();
+    loadCatalog();
+  }
+  async function deleteItem(catId, itemId){
+    if (!confirm('Bu fason oʻchiriladi. Davom etamizmi?')) return;
+    await fetch('/api/items/'+catId+'/'+itemId, { method:'DELETE' });
+    loadCatalog();
+  }
+
+  // ====== BOT SOZLAMALARI ======
+  async function loadBotStatus(){
+    const res = await fetch('/api/bot-status');
+    const data = await res.json();
+    const el = document.getElementById('botStatusText');
+    el.textContent = data.active ? `✅ Faol: @${data.username}` : '⚪ Bot hali faollashtirilmagan';
+    el.style.color = data.active ? '#1E8E3E' : 'var(--muted)';
+  }
+  async function activateBot(){
+    const token = document.getElementById('botTokenInput').value.trim();
+    if (!token) return alert('Token kiriting');
+    const res = await fetch('/api/bot-token', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (res.ok){
+      alert('✔ Bot faollashtirildi: @' + data.username);
+      document.getElementById('botTokenInput').value = '';
+      loadBotStatus();
+    } else {
+      alert(data.error);
+    }
+  }
+  async function deactivateBot(){
+    if (!confirm('Botni faolsizlantirasizmi? Mijozlar bilan bog\'lanish to\'xtaydi.')) return;
+    await fetch('/api/bot-deactivate', { method:'POST' });
+    loadBotStatus();
+  }
+
+  async function loadAdminChatId(){
+    const res = await fetch('/api/admin-chat-id');
+    const data = await res.json();
+    document.getElementById('adminChatIdInput').value = data.adminChatId || '';
+  }
+  async function saveAdminChatId(){
+    const chatId = document.getElementById('adminChatIdInput').value.trim();
+    if (!chatId) return alert('Chat ID kiriting');
+    const res = await fetch('/api/admin-chat-id', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ chatId })
+    });
+    if (res.ok) alert('✔ Saqlandi. Endi mijoz xabarlari shu chatga forward qilinadi.');
+    else alert('Xatolik yuz berdi');
+  }
+
+  async function loadPromo(){
+    const res = await fetch('/api/promo');
+    const data = await res.json();
+    document.getElementById('promoEyebrow').value = data.eyebrow || '';
+    document.getElementById('promoTitle').value = data.title || '';
+    document.getElementById('promoText').value = data.text || '';
+  }
+  async function savePromo(){
+    const eyebrow = document.getElementById('promoEyebrow').value.trim();
+    const title = document.getElementById('promoTitle').value.trim();
+    const text = document.getElementById('promoText').value.trim();
+    const res = await fetch('/api/promo', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ eyebrow, title, text })
+    });
+    if (res.ok) alert('✔ Banner yangilandi. Mini appda darhol ko\'rinadi.');
+    else alert('Xatolik yuz berdi');
+  }
+
+  async function loadAppName(){
+    const res = await fetch('/api/app-name');
+    const data = await res.json();
+    document.getElementById('appNameInput').value = data.appName || '';
+  }
+  async function saveAppName(){
+    const appName = document.getElementById('appNameInput').value.trim();
+    const res = await fetch('/api/app-name', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ appName })
+    });
+    if (res.ok) alert('✔ Saqlandi. Mini appda darhol ko\'rinadi.');
+    else alert('Xatolik yuz berdi');
+  }
+
+  async function loadContactUsername(){
+    const res = await fetch('/api/contact-username');
+    const data = await res.json();
+    document.getElementById('contactUsernameInput').value = data.contactUsername || '';
+  }
+  async function saveContactUsername(){
+    const username = document.getElementById('contactUsernameInput').value.trim();
+    const res = await fetch('/api/contact-username', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username })
+    });
+    if (res.ok) alert('✔ Saqlandi. Mini appda darhol ishlaydi.');
+    else alert('Xatolik yuz berdi');
+  }
+
+  loadUsers();
+</script>
+</body>
+</html>

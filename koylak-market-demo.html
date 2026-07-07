@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Atelye Market — Koʻylak katalogi</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3F1FA;
+    --surface:#FFFFFF;
+    --surface-glass:rgba(255,255,255,.72);
+    --ink:#15121F;
+    --muted:#736F82;
+    --accent:#6C2BD9;
+    --accent-2:#B14BF4;
+    --accent-soft:#EFE6FF;
+    --sale:#FF4D67;
+    --line:#ECEAF2;
+    --radius:24px;
+  }
+  body.dark{
+    --bg:#121019;
+    --surface:#1E1B29;
+    --surface-glass:rgba(30,27,41,.72);
+    --ink:#F2EEFB;
+    --muted:#9992AC;
+    --accent-soft:#2E2140;
+    --line:#2E2A3D;
+  }
+  body.dark{
+    background:
+      radial-gradient(120% 60% at 15% 0%, #2A2140 0%, transparent 55%),
+      radial-gradient(100% 50% at 100% 15%, #2B1830 0%, transparent 50%),
+      var(--bg);
+  }
+  body.dark .nav-home{background:linear-gradient(160deg,#2E2140,#241B33);}
+  body.dark .nav-fav{background:linear-gradient(160deg,#3A1E28,#2E1820);}
+  body.dark .sheet-note{
+    background:linear-gradient(135deg,#2E2140,#241B33);
+    color:#E4D9FF;
+  }
+  body.dark .sheet-note b{color:#C79BFF;}
+  body.dark .close-x, body.dark .icon-sm{background:rgba(255,255,255,.08);color:var(--muted);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 60% at 15% 0%, #EAE0FF 0%, transparent 55%),
+      radial-gradient(100% 50% at 100% 15%, #FFE3F0 0%, transparent 50%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:'Manrope', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:96px;
+  }
+  #app{max-width:520px;margin:0 auto;}
+  .screen{display:none;padding:0 16px 24px;}
+  .screen.active{display:block;animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ===== top bar ===== */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 2px 14px;
+  }
+  .topbar-title{font-size:22px;font-weight:800;letter-spacing:-.6px;}
+  .icon-btn{
+    width:40px;height:40px;border-radius:14px;border:none;
+    background:var(--surface-glass);backdrop-filter:blur(12px);
+    box-shadow:0 4px 14px rgba(108,43,217,.1);
+    font-size:17px;color:var(--accent);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .12s ease;
+  }
+  .icon-btn:active{transform:scale(.92);}
+  .search-bar{
+    display:flex;align-items:center;gap:8px;
+    background:var(--surface-glass);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.6);
+    border-radius:16px;
+    padding:13px 16px;color:var(--muted);font-size:15px;
+    margin-bottom:18px;
+    box-shadow:0 6px 18px rgba(108,43,217,.07);
+  }
+
+  /* ===== promo banner ===== */
+  .promo-banner{
+    background:linear-gradient(120deg,var(--accent) 0%,var(--accent-2) 100%);
+    border-radius:var(--radius);
+    padding:22px 22px 64px;
+    color:#fff;
+    margin-bottom:22px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 14px 30px -8px rgba(108,43,217,.45);
+  }
+  .promo-eyebrow{
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    opacity:.88;
+    font-weight:600;
+  }
+  .promo-banner h2{
+    font-size:30px;font-weight:800;margin:6px 0 4px;letter-spacing:-.5px;
+  }
+  .promo-banner p{margin:0;font-size:14.5px;opacity:.94;}
+  .promo-banner::after{
+    content:"";
+    position:absolute;
+    right:-36px;bottom:-46px;
+    width:170px;height:170px;
+    border-radius:50%;
+    background:rgba(255,255,255,.14);
+  }
+  .promo-banner::before{
+    content:"";
+    position:absolute;
+    left:60%;top:-40px;
+    width:110px;height:110px;
+    border-radius:50%;
+    background:rgba(255,255,255,.10);
+  }
+
+  .section-title{
+    font-size:18px;font-weight:800;letter-spacing:-.3px;
+    margin:4px 2px 12px;
+  }
+
+  /* ===== category grid ===== */
+  .cat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .cat-tile{
+    position:relative;
+    border-radius:20px;
+    overflow:hidden;
+    aspect-ratio:1/1;
+    cursor:pointer;
+    box-shadow:0 10px 24px -10px rgba(23,21,33,.25);
+    transition:transform .15s ease;
+  }
+  .cat-tile:active{transform:scale(.96);}
+  .cat-tile img{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .cat-tile::after{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.62) 100%);
+  }
+  .cat-label{
+    position:absolute;left:12px;right:12px;bottom:12px;z-index:1;
+    color:#fff;
+  }
+  .cat-label .name{font-size:15.5px;font-weight:700;line-height:1.2;}
+  .cat-label .count{font-size:12.5px;opacity:.85;}
+
+  /* ===== category detail ===== */
+  .cat-header{
+    display:flex;align-items:center;gap:10px;
+    padding:20px 0 16px;
+  }
+  .back-btn{
+    width:38px;height:38px;border-radius:13px;border:none;
+    background:var(--surface-glass);backdrop-filter:blur(12px);
+    box-shadow:0 4px 14px rgba(108,43,217,.1);
+    color:var(--ink);font-size:17px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .12s ease;
+  }
+  .back-btn:active{transform:scale(.9);}
+  .cat-header h2{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:0;}
+
+  /* ===== product grid ===== */
+  .prod-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .prod-card{
+    background:var(--surface);
+    border-radius:20px;
+    overflow:hidden;
+    cursor:pointer;
+    box-shadow:0 10px 22px -12px rgba(23,21,33,.22);
+    transition:transform .15s ease;
+  }
+  .prod-card:active{transform:scale(.97);}
+  .prod-photo-wrap{position:relative;}
+  .prod-photo{
+    width:100%;aspect-ratio:3/4;object-fit:cover;display:block;
+  }
+  .badge-stack{
+    position:absolute;top:10px;left:10px;
+    display:flex;flex-direction:column;gap:6px;align-items:flex-start;
+  }
+  .sale-tag{
+    background:var(--sale);color:#fff;
+    font-size:11.5px;font-weight:700;
+    padding:5px 9px;border-radius:9px;
+    box-shadow:0 4px 10px rgba(255,77,103,.4);
+  }
+  .fav-btn{
+    position:absolute;top:6px;right:6px;
+    width:46px;height:46px;border-radius:50%;border:none;
+    background:rgba(255,255,255,.88);backdrop-filter:blur(8px);
+    font-size:29px;line-height:1;color:var(--sale);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .12s ease, background .2s ease;
+    box-shadow:0 4px 12px rgba(23,21,33,.14);
+    z-index:2;
+  }
+  .fav-btn:active{transform:scale(.82);}
+  .fav-btn.liked{background:#fff;}
+  .fav-btn.pop{animation:heartPop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes heartPop{
+    0%{transform:scale(1);}
+    30%{transform:scale(1.45) rotate(-6deg);}
+    55%{transform:scale(.85) rotate(4deg);}
+    75%{transform:scale(1.12) rotate(0);}
+    100%{transform:scale(1);}
+  }
+  .fav-btn::after{
+    content:"";
+    position:absolute;inset:-8px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,77,103,.4), transparent 70%);
+    opacity:0;transform:scale(.4);
+    pointer-events:none;
+  }
+  .fav-btn.pop::after{animation:heartBurst .5s ease-out;}
+  @keyframes heartBurst{
+    0%{opacity:.9;transform:scale(.3);}
+    100%{opacity:0;transform:scale(2);}
+  }
+  .prod-card.removing{
+    transition:opacity .25s ease, transform .25s ease;
+    opacity:0;transform:scale(.92);
+  }
+  .prod-info{padding:11px 12px 15px;}
+  .prod-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:6px;min-height:36px;}
+  .prod-price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+  .prod-price{font-size:15px;font-weight:800;}
+  .prod-oldprice{font-size:12px;color:var(--muted);text-decoration:line-through;}
+
+  .empty-state{
+    text-align:center;color:var(--muted);
+    padding:60px 20px;font-size:14.5px;
+  }
+
+  /* ===== bottom nav — floating glass pill ===== */
+  .bottom-nav{
+    position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));
+    max-width:488px;margin:0 auto;
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    z-index:15;
+  }
+  .nav-btn{
+    flex:none;border:none;
+    padding:8px 16px 9px;
+    border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    font-size:11px;color:var(--muted);
+    font-family:'Manrope',sans-serif;font-weight:600;
+    cursor:pointer;
+    transition:color .15s ease, transform .15s ease;
+    box-shadow:0 8px 20px -8px rgba(23,21,33,.22);
+  }
+  .nav-btn:active{transform:scale(.94);}
+  .nav-home{background:linear-gradient(160deg,#F3EAFF,#EDE0FF);}
+  .nav-fav{background:linear-gradient(160deg,#FFE9EE,#FFDCE4);}
+  .nav-btn .icon-wrap{
+    width:34px;height:34px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .nav-btn:active .icon-wrap{transform:scale(.9);}
+  .nav-btn .icon-wrap svg{width:17px;height:17px;stroke:#fff;}
+  .icon-home{background:linear-gradient(150deg,var(--accent-2),var(--accent));}
+  .icon-fav{background:linear-gradient(150deg,#FF7A93,var(--sale));}
+  .icon-write{background:linear-gradient(150deg,#4FC3F7,#229ED9);}
+  .nav-btn .icon-wrap{box-shadow:0 4px 10px -4px rgba(23,21,33,.35);opacity:.72;}
+  .nav-btn.active .icon-wrap{opacity:1;transform:scale(1.08) translateY(-1px);box-shadow:0 8px 16px -5px rgba(23,21,33,.4);}
+  .nav-btn.active{color:var(--ink);font-weight:800;}
+
+  /* ===== bottom sheet (product detail) ===== */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,13,20,.5);
+    opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:20;
+  }
+  .overlay.open{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;
+    max-width:520px;margin:0 auto;
+    background:var(--surface);
+    border-radius:22px 22px 0 0;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+    z-index:21;height:82vh;
+    box-shadow:0 -20px 50px -12px rgba(23,21,33,.3);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .sheet{border-radius:28px 28px 0 0;}
+  .sheet.open{transform:translateY(0);}
+  .sheet-scroll{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+  .sheet-handle{flex:none;width:36px;height:4px;background:var(--line);border-radius:2px;margin:10px auto 4px;}
+  .sheet-photo{flex:none;width:100%;height:42vh;object-fit:cover;display:block;}
+  .gallery-wrap{flex:none;position:relative;width:100%;height:42vh;}
+  .gallery-track{
+    width:100%;height:100%;
+    display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+  .gallery-track::-webkit-scrollbar{display:none;}
+  .gallery-track img{
+    flex:0 0 100%;width:100%;height:100%;
+    object-fit:cover;scroll-snap-align:start;
+    cursor:zoom-in;
+  }
+  .gallery-dots{
+    position:absolute;left:0;right:0;bottom:10px;
+    display:flex;justify-content:center;gap:6px;
+  }
+  .gallery-dots span{
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(255,255,255,.5);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .gallery-dots span.active{background:#fff;transform:scale(1.3);}
+  .sheet-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:10px 20px 8px;}
+  .sheet-name{flex:none;font-size:16.5px;font-weight:800;letter-spacing:-.2px;margin:0 0 2px;}
+  .sheet-price-row{flex:none;display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
+  .sheet-price{font-size:18px;font-weight:800;color:var(--accent);}
+  .sheet-oldprice{font-size:13.5px;color:var(--muted);text-decoration:line-through;}
+  .sheet-note{
+    flex:1 1 auto;min-height:0;overflow-y:auto;
+    background:linear-gradient(135deg,var(--accent-soft),#FBF2FF);
+    border-radius:14px;
+    padding:10px 13px;
+    font-size:13px;
+    line-height:1.4;
+    color:#3E2E6B;
+  }
+  .sheet-note b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:2px;}
+  .sheet-footer{
+    flex:none;
+    padding:8px 20px calc(8px + env(safe-area-inset-bottom));
+    background:var(--surface);
+    box-shadow:0 -6px 16px rgba(23,21,33,.08);
+  }
+  .contact-btn{
+    display:block;width:100%;padding:11px;
+    background:linear-gradient(120deg,var(--accent),var(--accent-2));
+    color:#fff;border:none;border-radius:13px;
+    font-family:'Manrope',sans-serif;font-size:14.5px;font-weight:700;cursor:pointer;
+    box-shadow:0 8px 18px -6px rgba(108,43,217,.5);
+    transition:transform .12s ease;
+  }
+  .contact-btn:active{transform:scale(.98);}
+  .close-x{
+    position:absolute;top:14px;right:16px;
+    width:32px;height:32px;border:none;background:rgba(23,21,33,.06);border-radius:50%;
+    color:var(--muted);font-size:18px;cursor:pointer;
+    z-index:2;
+  }
+  .image-viewer{
+    position:fixed;inset:0;background:rgba(10,9,15,.94);
+    display:none;align-items:center;justify-content:center;
+    z-index:30;
+  }
+  .image-viewer.open{display:flex;}
+  .image-viewer img{
+    max-width:92vw;max-height:88vh;
+    object-fit:contain;
+    border-radius:16px;
+  }
+  .iv-close{
+    position:absolute;top:calc(16px + env(safe-area-inset-top));right:16px;
+    width:38px;height:38px;border-radius:50%;border:none;
+    background:rgba(255,255,255,.15);color:#fff;font-size:19px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(8px);
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="topbar">
+      <div class="topbar-title" id="appTitle">Atelye Market</div>
+      <button class="icon-btn" id="themeToggle" aria-label="Tungi/Kunduzgi rejim">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <defs>
+            <clipPath id="rightHalf"><rect x="12" y="0" width="12" height="24"/></clipPath>
+            <clipPath id="leftHalf"><rect x="0" y="0" width="12" height="24"/></clipPath>
+          </defs>
+          <circle cx="12" cy="12" r="8.2" fill="#FFB020" clip-path="url(#rightHalf)"/>
+          <circle cx="12" cy="12" r="8.2" fill="#4A4E69" clip-path="url(#leftHalf)"/>
+          <g stroke="#FFB020" stroke-width="1.6" stroke-linecap="round">
+            <line x1="21.2" y1="12" x2="23.2" y2="12"/>
+            <line x1="18.8" y1="5.8" x2="20.2" y2="4.3"/>
+            <line x1="18.8" y1="18.2" x2="20.2" y2="19.7"/>
+          </g>
+          <circle cx="9.2" cy="8.8" r="1.15" fill="#2b2233" clip-path="url(#leftHalf)"/>
+          <circle cx="7.3" cy="13.6" r="0.8" fill="#2b2233" clip-path="url(#leftHalf)"/>
+        </svg>
+      </button>
+    </div>
+    <div class="search-bar" style="padding:0 4px;">
+      <span style="padding-left:12px;">🔍</span>
+      <input id="searchInput" placeholder="Fasonlarni qidirish..." style="border:none;background:none;outline:none;flex:1;font-family:'Manrope',sans-serif;font-size:15px;color:var(--ink);padding:13px 8px;">
+    </div>
+    <div id="searchResultsWrap" style="display:none;">
+      <h3 class="section-title" id="searchResultsTitle">Qidiruv natijalari</h3>
+      <div class="prod-grid" id="searchResults"></div>
+    </div>
+    <div id="homeDefaultWrap">
+      <div class="promo-banner">
+        <span class="promo-eyebrow" id="promoEyebrow">Fasl chegirmasi</span>
+        <h2 id="promoTitle">-20% gacha</h2>
+        <p id="promoText">Kelinchak va kechki libos toʻplamida</p>
+      </div>
+      <h3 class="section-title">Kategoriyalar</h3>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+  </section>
+
+  <!-- CATEGORY DETAIL -->
+  <section class="screen" id="screen-category">
+    <div class="cat-header">
+      <button class="back-btn" id="backBtn">←</button>
+      <h2 id="catTitle"></h2>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </section>
+
+  <!-- FAVORITES -->
+  <section class="screen" id="screen-fav">
+    <div class="cat-header"><h2>Sevimlilar</h2></div>
+    <div class="prod-grid" id="favGrid"></div>
+  </section>
+
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn nav-home active" data-nav="home">
+    <span class="icon-wrap icon-home"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9.5v-6h5v6H17.5a1 1 0 0 0 1-1V10"/></svg></span>
+    Bosh sahifa
+  </button>
+  <button class="nav-btn nav-fav" data-nav="fav">
+    <span class="icon-wrap icon-fav"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.8-9.3C.6 7.7 2 4 5.6 3.4c2-.3 3.9.7 4.9 2.4 1-1.7 2.9-2.7 4.9-2.4C19 4 20.4 7.7 18.8 11.2 16.5 15.9 12 20.5 12 20.5Z"/></svg></span>
+    Sevimlilar
+  </button>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+<div class="image-viewer" id="imageViewer">
+  <button class="iv-close" id="ivClose">✕</button>
+  <img id="ivPhoto" src="" alt="">
+</div>
+<div class="sheet" id="sheet">
+  <button class="close-x" id="closeBtn">✕</button>
+  <div class="sheet-scroll">
+    <div class="sheet-handle"></div>
+    <div class="gallery-wrap">
+      <div class="gallery-track" id="galleryTrack"></div>
+      <div class="gallery-dots" id="galleryDots"></div>
+    </div>
+    <div class="sheet-body">
+      <h2 class="sheet-name" id="sheetName"></h2>
+      <div class="sheet-price-row">
+        <span class="sheet-oldprice" id="sheetOldPrice"></span>
+        <span class="sheet-price" id="sheetPrice"></span>
+      </div>
+      <div class="sheet-note">
+        <b>Tikuvchidan izoh</b>
+        <span id="sheetNote"></span>
+      </div>
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button class="contact-btn" id="shareBtn">
+      <span style="display:inline-flex;align-items:center;gap:6px;justify-content:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.7M8.2 13.2l7.6 4.1"/></svg>
+        Ulashish
+      </span>
+    </button>
+  </div>
+</div>
+
+<script>
+  // ====== SOZLAMALAR ======
+
+  // Dashboard bilan ulanish uchun — serveringiz manzilini shu yerga yozing (masalan Render'dan olingan havola).
+  // Bo'sh qoldirilsa, mini app pastdagi namunaviy (demo) ma'lumotlardan foydalanadi.
+  // Mini app endi backend bilan bir joyda (public papkada) joylashgan bo'lsa,
+  // API_BASE_URL bo'sh qoldirilsa ham nisbiy (relative) manzillar orqali o'zi ulanadi.
+  // Agar mini appni boshqa joyda (masalan alohida GitHub Pages'da) joylashtirsangiz,
+  // shu yerga to'liq server manzilini yozing: masalan "https://atelye-market.onrender.com"
+  const API_BASE_URL = "";
+
+  async function loadFromServer(){
+    try {
+      const [catalogRes, promoRes, nameRes] = await Promise.all([
+        fetch(API_BASE_URL + '/api/catalog'),
+        fetch(API_BASE_URL + '/api/promo'),
+        fetch(API_BASE_URL + '/api/app-name')
+      ]);
+      // Agar backend ulanmagan bo'lsa, javob JSON emas (masalan HTML sahifa) bo'lishi mumkin —
+      // bunday holda demo ma'lumotlar bilan davom etamiz, xatolik ko'rsatmaymiz.
+      const catalogType = catalogRes.headers.get('content-type') || '';
+      const promoType = promoRes.headers.get('content-type') || '';
+      const nameType = nameRes.headers.get('content-type') || '';
+      if (!catalogRes.ok || !promoRes.ok || !catalogType.includes('json') || !promoType.includes('json')) {
+        return;
+      }
+      const catalogData = await catalogRes.json();
+      const promoData = await promoRes.json();
+
+      if (catalogData.categories && catalogData.categories.length){
+        CATEGORIES.length = 0;
+        catalogData.categories.forEach(c => CATEGORIES.push(c));
+        renderCategoryGrid();
+      }
+      if (promoData){
+        document.getElementById('promoEyebrow').textContent = promoData.eyebrow || '';
+        document.getElementById('promoTitle').textContent = promoData.title || '';
+        document.getElementById('promoText').textContent = promoData.text || '';
+      }
+      if (nameType.includes('json')){
+        const nameData = await nameRes.json();
+        if (nameData && nameData.appName){
+          document.getElementById('appTitle').textContent = nameData.appName;
+          document.title = nameData.appName + ' — Koʻylak katalogi';
+        }
+      }
+    } catch (e) {
+      // Server ulanmagan yoki mavjud emas — demo ma'lumotlar bilan davom etamiz (jim, xatosiz).
+    }
+  }
+
+  // ====== KATEGORIYALAR VA FASONLAR ======
+  // Buni keyinchalik dashboard orqali qo'shish/o'chirish mumkin bo'ladi.
+  // Hozircha demo uchun to'g'ridan-to'g'ri shu yerda tahrirlanadi.
+  const CATEGORIES = [
+    {
+      id: "milliy",
+      name: "Milliy fasonlar",
+      cover: "https://picsum.photos/seed/milliy-cover/400/400",
+      items: [
+        { id: "m1", name: "Anʼanaviy adras koʻylak", price: "620 000 soʻm", photo: "https://picsum.photos/seed/milliy-1/450/600", photos: ["https://picsum.photos/seed/milliy-1/450/600", "https://picsum.photos/seed/milliy-1-b/450/600", "https://picsum.photos/seed/milliy-1-c/450/600"], note: "Adras matosi va milliy naqshlar bilan qo'lda tikilgan. Bayramlar uchun eng ko'p so'raladigan fasonlardan biri." },
+        { id: "m2", name: "Milliy chorsu koʻylak", price: "540 000 soʻm", photo: "https://picsum.photos/seed/milliy-2/450/600", photos: ["https://picsum.photos/seed/milliy-2/450/600", "https://picsum.photos/seed/milliy-2-b/450/600", "https://picsum.photos/seed/milliy-2-c/450/600"], note: "Yengil va bezakli, kundalik milliy libos sifatida ham kiyish mumkin." },
+        { id: "m3", name: "Zargarlik bezakli milliy libos", price: "980 000 soʻm", oldPrice: "1 200 000 soʻm", discount: 18, photo: "https://picsum.photos/seed/milliy-3/450/600", photos: ["https://picsum.photos/seed/milliy-3/450/600", "https://picsum.photos/seed/milliy-3-b/450/600", "https://picsum.photos/seed/milliy-3-c/450/600"], note: "Ko'kraklariga zardo'zi bezak qo'shilgan, to'y-tantanalar uchun mos." }
+      ]
+    },
+    {
+      id: "rus",
+      name: "Rus fasonlari",
+      cover: "https://picsum.photos/seed/rus-cover/400/400",
+      items: [
+        { id: "r1", name: "Rus uslubidagi koʻylak", price: "710 000 soʻm", photo: "https://picsum.photos/seed/rus-1/450/600", photos: ["https://picsum.photos/seed/rus-1/450/600", "https://picsum.photos/seed/rus-1-b/450/600", "https://picsum.photos/seed/rus-1-c/450/600"], note: "Yumshoq siluet va klassik yoqa fasoni bilan." },
+        { id: "r2", name: "Klassik rus sarafan", price: "560 000 soʻm", photo: "https://picsum.photos/seed/rus-2/450/600", photos: ["https://picsum.photos/seed/rus-2/450/600", "https://picsum.photos/seed/rus-2-b/450/600", "https://picsum.photos/seed/rus-2-c/450/600"], note: "Erkin, qulay fason — kundalik kiyish uchun ideal." },
+        { id: "r3", name: "Rus uslubi kechki libos", price: "1 100 000 soʻm", photo: "https://picsum.photos/seed/rus-3/450/600", photos: ["https://picsum.photos/seed/rus-3/450/600", "https://picsum.photos/seed/rus-3-b/450/600", "https://picsum.photos/seed/rus-3-c/450/600"], note: "Uzun yenglar va nafis chiziqlar bilan kechki tadbirlarga mos." }
+      ]
+    },
+    {
+      id: "kelinchak",
+      name: "Kelinchak fasonlari",
+      cover: "https://picsum.photos/seed/kelin-cover/400/400",
+      items: [
+        { id: "k1", name: "Klassik kelinchak libosi", price: "2 800 000 soʻm", photo: "https://picsum.photos/seed/kelin-1/450/600", photos: ["https://picsum.photos/seed/kelin-1/450/600", "https://picsum.photos/seed/kelin-1-b/450/600", "https://picsum.photos/seed/kelin-1-c/450/600"], note: "Har bir tafsilot qo'lda ishlanadi, o'lchamga alohida moslashtiriladi." },
+        { id: "k2", name: "Zamonaviy kelinchak libosi", price: "2 450 000 soʻm", oldPrice: "2 900 000 soʻm", discount: 16, photo: "https://picsum.photos/seed/kelin-2/450/600", photos: ["https://picsum.photos/seed/kelin-2/450/600", "https://picsum.photos/seed/kelin-2-b/450/600", "https://picsum.photos/seed/kelin-2-c/450/600"], note: "Sodda va nafis, ochiq yelka fasoni bilan." },
+        { id: "k3", name: "Uzun shleyfli kelin libosi", price: "3 400 000 soʻm", photo: "https://picsum.photos/seed/kelin-3/450/600", photos: ["https://picsum.photos/seed/kelin-3/450/600", "https://picsum.photos/seed/kelin-3-b/450/600", "https://picsum.photos/seed/kelin-3-c/450/600"], note: "Shohona uzun shleyf va dantel bezaklar bilan — eng ko'p buyurtma qilinadigan fason." }
+      ]
+    },
+    {
+      id: "zamonaviy",
+      name: "Zamonaviy fasonlar",
+      cover: "https://picsum.photos/seed/zamon-cover/400/400",
+      items: [
+        { id: "z1", name: "Minimalist zamonaviy koʻylak", price: "480 000 soʻm", photo: "https://picsum.photos/seed/zamon-1/450/600", photos: ["https://picsum.photos/seed/zamon-1/450/600", "https://picsum.photos/seed/zamon-1-b/450/600", "https://picsum.photos/seed/zamon-1-c/450/600"], note: "Toza chiziqlar, hech qanday ortiqcha bezaksiz — har kuni kiyish uchun." },
+        { id: "z2", name: "Oversize koʻylak", price: "410 000 soʻm", photo: "https://picsum.photos/seed/zamon-2/450/600", photos: ["https://picsum.photos/seed/zamon-2/450/600", "https://picsum.photos/seed/zamon-2-b/450/600", "https://picsum.photos/seed/zamon-2-c/450/600"], note: "Erkin fason, yoshlar orasida mashhur." },
+        { id: "z3", name: "Zamonaviy midi koʻylak", price: "530 000 soʻm", oldPrice: "620 000 soʻm", discount: 15, photo: "https://picsum.photos/seed/zamon-3/450/600", photos: ["https://picsum.photos/seed/zamon-3/450/600", "https://picsum.photos/seed/zamon-3-b/450/600", "https://picsum.photos/seed/zamon-3-c/450/600"], note: "O'rta uzunlikdagi yubka, ish va kundalik kiyim sifatida mos." }
+      ]
+    }
+  ];
+
+  let currentCategory = null;
+  let favorites = new Set();
+  const tgApp = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+
+  function allItems(){
+    return CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, categoryId: c.id })));
+  }
+
+  // ====== SEVIMLILAR (Telegram CloudStorage'da saqlanadi) ======
+  function loadFavorites(cb){
+    if (tgApp && tgApp.CloudStorage) {
+      tgApp.CloudStorage.getItem('favorites', (err, value) => {
+        if (!err && value) { try { favorites = new Set(JSON.parse(value)); } catch(e){} }
+        cb();
+      });
+    } else { cb(); }
+  }
+  function saveFavorites(){
+    if (tgApp && tgApp.CloudStorage) tgApp.CloudStorage.setItem('favorites', JSON.stringify([...favorites]));
+  }
+  function toggleFavorite(id, refreshFn){
+    if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+    saveFavorites();
+    refreshFn();
+  }
+
+  // ====== EKRANLARNI ALMASHTIRISH ======
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const nav = btn.dataset.nav;
+      btn.classList.add('active');
+      if (nav === 'home') showScreen('screen-home');
+      if (nav === 'fav') { renderFavorites(); showScreen('screen-fav'); }
+    });
+  });
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    saveThemePref();
+  });
+  function saveThemePref(){
+    const isDark = document.body.classList.contains('dark');
+    if (tgApp && tgApp.CloudStorage) tgApp.CloudStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+  function loadThemePref(){
+    if (tgApp && tgApp.CloudStorage) {
+      tgApp.CloudStorage.getItem('theme', (err, value) => {
+        if (!err && value === 'dark') document.body.classList.add('dark');
+      });
+    }
+  }
+  loadThemePref();
+  document.getElementById('backBtn').addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.nav-btn[data-nav="home"]').classList.add('active');
+    showScreen('screen-home');
+  });
+
+  // ====== KATEGORIYALAR GRID ======
+  const catGrid = document.getElementById('catGrid');
+  function renderCategoryGrid(){
+    catGrid.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const tile = document.createElement('div');
+      tile.className = 'cat-tile';
+      tile.innerHTML = `
+        <img src="${cat.cover}" alt="${cat.name}" loading="lazy">
+        <div class="cat-label">
+          <div class="name">${cat.name}</div>
+          <div class="count">${cat.items.length} ta fason</div>
+        </div>
+      `;
+      tile.addEventListener('click', () => openCategory(cat.id));
+      catGrid.appendChild(tile);
+    });
+  }
+  renderCategoryGrid();
+
+  function openCategory(id){
+    currentCategory = CATEGORIES.find(c => c.id === id);
+    document.getElementById('catTitle').textContent = currentCategory.name;
+    renderProductGrid('prodGrid', currentCategory.items.map(it => ({ ...it, categoryId: id })));
+    showScreen('screen-category');
+  }
+
+  // ====== QIDIRUV ======
+  const searchInput = document.getElementById('searchInput');
+  const searchResultsWrap = document.getElementById('searchResultsWrap');
+  const homeDefaultWrap = document.getElementById('homeDefaultWrap');
+  const searchResultsTitle = document.getElementById('searchResultsTitle');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q){
+      searchResultsWrap.style.display = 'none';
+      homeDefaultWrap.style.display = '';
+      return;
+    }
+    const matches = allItems().filter(it => it.name.toLowerCase().includes(q));
+    searchResultsTitle.textContent = `Qidiruv natijalari (${matches.length})`;
+    homeDefaultWrap.style.display = 'none';
+    searchResultsWrap.style.display = '';
+    renderProductGrid('searchResults', matches, "Hech narsa topilmadi. Boshqa nom bilan sinab ko'ring.");
+  });
+
+  function renderFavorites(){
+    const favItems = allItems().filter(it => favorites.has(it.id));
+    renderProductGrid('favGrid', favItems, "Hali sevimlilar yoʻq. ♡ belgisini bosib fasonlarni belgilab qoʻying.");
+  }
+
+  function renderProductGrid(containerId, items, emptyText){
+    const grid = document.getElementById(containerId);
+    if (items.length === 0){
+      grid.innerHTML = `<p class="empty-state" style="grid-column:1/-1;">${emptyText || 'Bu boʻlimda hozircha fason yoʻq'}</p>`;
+      return;
+    }
+    grid.innerHTML = '';
+    items.forEach(p => {
+      const isFav = favorites.has(p.id);
+      const card = document.createElement('div');
+      card.className = 'prod-card';
+      card.innerHTML = `
+        <div class="prod-photo-wrap">
+          <img class="prod-photo" src="${p.photo}" alt="${p.name}" loading="lazy">
+          <div class="badge-stack">
+            ${p.discount ? `<span class="sale-tag">-${p.discount}%</span>` : ''}
+          </div>
+          <button class="fav-btn${isFav ? ' liked' : ''}">${isFav ? '♥' : '♡'}</button>
+        </div>
+        <div class="prod-info">
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-price-row">
+            ${p.oldPrice ? `<span class="prod-oldprice">${p.oldPrice}</span>` : ''}
+            <span class="prod-price">${p.price}</span>
+          </div>
+        </div>
+      `;
+      const favBtn = card.querySelector('.fav-btn');
+      favBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nowFav = !favorites.has(p.id);
+        if (nowFav) favorites.add(p.id); else favorites.delete(p.id);
+        saveFavorites();
+
+        favBtn.textContent = nowFav ? '♥' : '♡';
+        favBtn.classList.toggle('liked', nowFav);
+        favBtn.classList.remove('pop');
+        void favBtn.offsetWidth; // animatsiyani qayta ishga tushirish uchun
+        favBtn.classList.add('pop');
+
+        if (containerId === 'favGrid' && !nowFav){
+          card.classList.add('removing');
+          setTimeout(() => renderFavorites(), 260);
+        }
+      });
+      card.addEventListener('click', () => openSheet(p));
+      grid.appendChild(card);
+    });
+  }
+
+  // ====== FASON TAFSILOTI (bottom sheet) ======
+  const overlay = document.getElementById('overlay');
+  const sheet = document.getElementById('sheet');
+  const shareBtn = document.getElementById('shareBtn');
+  const galleryTrack = document.getElementById('galleryTrack');
+  const galleryDots = document.getElementById('galleryDots');
+  const imageViewer = document.getElementById('imageViewer');
+  const ivPhoto = document.getElementById('ivPhoto');
+
+  function closeImageViewer(){ imageViewer.classList.remove('open'); }
+  document.getElementById('ivClose').addEventListener('click', closeImageViewer);
+  imageViewer.addEventListener('click', (e) => { if (e.target === imageViewer) closeImageViewer(); });
+
+  function getPhotos(p){
+    return (p.photos && p.photos.length) ? p.photos : [p.photo];
+  }
+
+  function renderGallery(p){
+    const photos = getPhotos(p);
+    galleryTrack.innerHTML = '';
+    galleryDots.innerHTML = '';
+    photos.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = p.name;
+      img.addEventListener('click', () => {
+        ivPhoto.src = src;
+        imageViewer.classList.add('open');
+      });
+      galleryTrack.appendChild(img);
+
+      if (photos.length > 1){
+        const dot = document.createElement('span');
+        if (i === 0) dot.classList.add('active');
+        galleryDots.appendChild(dot);
+      }
+    });
+    galleryTrack.scrollLeft = 0;
+    if (photos.length > 1){
+      galleryTrack.onscroll = () => {
+        const idx = Math.round(galleryTrack.scrollLeft / galleryTrack.clientWidth);
+        [...galleryDots.children].forEach((d, i) => d.classList.toggle('active', i === idx));
+      };
+    } else {
+      galleryTrack.onscroll = null;
+    }
+  }
+
+  function openSheet(p){
+    renderGallery(p);
+    document.getElementById('sheetName').textContent = p.name;
+    document.getElementById('sheetPrice').textContent = p.price;
+    document.getElementById('sheetOldPrice').textContent = p.oldPrice || '';
+    document.getElementById('sheetNote').textContent = p.note || '';
+    shareBtn.onclick = () => shareProduct(p);
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+  }
+  function shareProduct(p){
+    const shareText = `${p.name} — ${p.price}`;
+    const pageUrl = window.location.href.split('?')[0];
+    if (tgApp){
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareText)}`;
+      tgApp.openTelegramLink(shareUrl);
+    } else if (navigator.share){
+      navigator.share({ title: p.name, text: shareText, url: pageUrl }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${shareText}\n${pageUrl}`);
+      alert('Havola nusxalandi ✔');
+    }
+  }
+  function closeSheet(){
+    overlay.classList.remove('open');
+    sheet.classList.remove('open');
+  }
+  overlay.addEventListener('click', closeSheet);
+  document.getElementById('closeBtn').addEventListener('click', closeSheet);
+
+  // ====== TELEGRAM MINI APP INIT ======
+  if (tgApp) { tgApp.ready(); tgApp.expand(); }
+  loadFavorites(() => {});
+  loadFromServer();
+</script>
+</body>
+</html>
